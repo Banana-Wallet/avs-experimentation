@@ -65,7 +65,7 @@ func createMockSignedTaskResponse(mockTask MockTask, keypair bls.KeyPair) (*Sign
 	numberToSquareBigInt := big.NewInt(int64(mockTask.NumberToSquare))
 	taskResponse := &cstaskmanager.IIncredibleSquaringTaskManagerTaskResponse{
 		ReferenceTaskIndex: mockTask.TaskNum,
-		NumberSquared:      numberToSquareBigInt.Mul(numberToSquareBigInt, numberToSquareBigInt),
+		EnumOfDataTrained:  numberToSquareBigInt.Mul(numberToSquareBigInt, numberToSquareBigInt),
 	}
 	taskResponseHash, err := core.GetTaskResponseDigest(taskResponse)
 	if err != nil {

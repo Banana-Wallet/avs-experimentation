@@ -21,7 +21,7 @@ type AvsWriterer interface {
 
 	SendNewTaskNumberToSquare(
 		ctx context.Context,
-		numToSquare *big.Int,
+		enumOfDataToBeTrained *big.Int,
 		quorumThresholdPercentage uint32,
 		quorumNumbers []byte,
 	) (cstaskmanager.IIncredibleSquaringTaskManagerTask, uint32, error)
@@ -75,13 +75,13 @@ func NewAvsWriter(avsRegistryWriter avsregistry.AvsRegistryWriter, avsServiceBin
 }
 
 // returns the tx receipt, as well as the task index (which it gets from parsing the tx receipt logs)
-func (w *AvsWriter) SendNewTaskNumberToSquare(ctx context.Context, numToSquare *big.Int, quorumThresholdPercentage uint32, quorumNumbers []byte) (cstaskmanager.IIncredibleSquaringTaskManagerTask, uint32, error) {
+func (w *AvsWriter) SendNewTaskNumberToSquare(ctx context.Context, enumOfDataToBeTrained *big.Int, quorumThresholdPercentage uint32, quorumNumbers []byte) (cstaskmanager.IIncredibleSquaringTaskManagerTask, uint32, error) {
 	txOpts, err := w.TxMgr.GetNoSendTxOpts()
 	if err != nil {
 		w.logger.Errorf("Error getting tx opts")
 		return cstaskmanager.IIncredibleSquaringTaskManagerTask{}, 0, err
 	}
-	tx, err := w.AvsContractBindings.TaskManager.CreateNewTask(txOpts, numToSquare, quorumThresholdPercentage, quorumNumbers)
+	tx, err := w.AvsContractBindings.TaskManager.CreateNewTask(txOpts, enumOfDataToBeTrained, quorumThresholdPercentage, quorumNumbers)
 	if err != nil {
 		w.logger.Errorf("Error assembling CreateNewTask tx")
 		return cstaskmanager.IIncredibleSquaringTaskManagerTask{}, 0, err
@@ -129,20 +129,23 @@ func (w *AvsWriter) RaiseChallenge(
 	taskResponseMetadata cstaskmanager.IIncredibleSquaringTaskManagerTaskResponseMetadata,
 	pubkeysOfNonSigningOperators []cstaskmanager.BN254G1Point,
 ) (*types.Receipt, error) {
-	txOpts, err := w.TxMgr.GetNoSendTxOpts()
+	_, err := w.TxMgr.GetNoSendTxOpts()
 	if err != nil {
 		w.logger.Errorf("Error getting tx opts")
 		return nil, err
 	}
-	tx, err := w.AvsContractBindings.TaskManager.RaiseAndResolveChallenge(txOpts, task, taskResponse, taskResponseMetadata, pubkeysOfNonSigningOperators)
-	if err != nil {
-		w.logger.Errorf("Error assembling RaiseChallenge tx")
-		return nil, err
-	}
-	receipt, err := w.TxMgr.Send(ctx, tx)
-	if err != nil {
-		w.logger.Errorf("Error submitting CreateNewTask tx")
-		return nil, err
-	}
-	return receipt, nil
+	// tx, err := w.AvsContractBindings.TaskManager.RaiseAndResolveChallenge(txOpts, task, taskResponse, taskResponseMetadata, pubkeysOfNonSigningOperators)
+	// if err != nil {
+	// 	w.logger.Errorf("Error assembling RaiseChallenge tx")
+	// 	return nil, err
+	// }
+	// receipt, err := w.TxMgr.Send(ctx, tx)
+	// if err != nil {
+	// 	w.logger.Errorf("Error submitting CreateNewTask tx")
+	// 	return nil, err
+	// }
+	// return receipt, nil
+
+	w.logger.Errorf("Error assembling RaiseChallenge tx")
+	return nil, err
 }
