@@ -2,6 +2,7 @@ package chainio
 
 import (
 	"context"
+	"fmt"
 	"math/big"
 
 	gethcommon "github.com/ethereum/go-ethereum/common"
@@ -109,7 +110,9 @@ func (w *AvsWriter) SendAggregatedResponse(
 		w.logger.Errorf("Error getting tx opts")
 		return nil, err
 	}
+	fmt.Println(txOpts, task, taskResponse, nonSignerStakesAndSignature)
 	tx, err := w.AvsContractBindings.TaskManager.RespondToTask(txOpts, task, taskResponse, nonSignerStakesAndSignature)
+	fmt.Println("tx here", tx)
 	if err != nil {
 		w.logger.Error("Error submitting SubmitTaskResponse tx while calling respondToTask", "err", err)
 		return nil, err

@@ -328,18 +328,20 @@ func (o *Operator) ProcessNewTaskCreatedLog(newTaskCreatedLog *cstaskmanager.Con
 	} else {
 		encryptedWeightsAndBiasesFetched, _ := ioutil.ReadAll(response.Body)
 		encryptedWeightsAndBiases = string(encryptedWeightsAndBiasesFetched)
-		// []byte(string(encryptedWeightsAndBiasesFetched))
-		// fmt.Println("Received response", encryptedWeightsAndBiases)
 	}
+
+	fmt.Println(encryptedWeightsAndBiases)
 
 	taskResponse := &cstaskmanager.IIncredibleSquaringTaskManagerTaskResponse{
 		ReferenceTaskIndex:        newTaskCreatedLog.TaskIndex,
 		EncryptedWeightsAndBiases: encryptedWeightsAndBiases,
 	}
+	fmt.Println("Returned the response")
 	return taskResponse
 }
 
 func (o *Operator) SignTaskResponse(taskResponse *cstaskmanager.IIncredibleSquaringTaskManagerTaskResponse) (*aggregator.SignedTaskResponse, error) {
+	fmt.Println("Entered SignTaskResponse")
 	taskResponseHash, err := core.GetTaskResponseDigest(taskResponse)
 	if err != nil {
 		o.logger.Error("Error getting task response header hash. skipping task (this is not expected and should be investigated)", "err", err)

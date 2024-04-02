@@ -21,7 +21,7 @@ func AbiEncodeTaskResponse(h *cstaskmanager.IIncredibleSquaringTaskManagerTaskRe
 		},
 		{
 			Name: "encryptedWeightsAndBiases",
-			Type: "uint256",
+			Type: "string",
 		},
 	})
 	if err != nil {
