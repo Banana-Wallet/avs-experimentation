@@ -1,10 +1,11 @@
 package operator
 
 import (
+	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
-	"math/big"
+	"io/ioutil"
+	"net/http"
 	"os"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -316,22 +317,24 @@ func (o *Operator) ProcessNewTaskCreatedLog(newTaskCreatedLog *cstaskmanager.Con
 
 	// make a request here to the client to train the data and get the result
 
-	var data map[string]interface{}
+	webapiUrl := "http://localhost:8000/train_server"
+	// val := big.NewInt(1)
 
-	filename := "data.json"
-	file, _ := os.Open(filename)
+	jsonData := []byte(`{}`)
+	var encryptedWeightsAndBiases string
+	response, err := http.Post(webapiUrl, "application/json", bytes.NewBuffer(jsonData))
+	if err != nil {
+		fmt.Printf("The HTTP request failed with error %s\n", err)
+	} else {
+		encryptedWeightsAndBiasesFetched, _ := ioutil.ReadAll(response.Body)
+		encryptedWeightsAndBiases = string(encryptedWeightsAndBiasesFetched)
+		// []byte(string(encryptedWeightsAndBiasesFetched))
+		// fmt.Println("Received response", encryptedWeightsAndBiases)
+	}
 
-	defer file.Close()
-
-	decoder := json.NewDecoder(file)
-	_ = decoder.Decode(&data)
-
-	fmt.Println(data)
-
-	// for now, we just return a task response with enumOfDataTrained = 1
 	taskResponse := &cstaskmanager.IIncredibleSquaringTaskManagerTaskResponse{
-		ReferenceTaskIndex: newTaskCreatedLog.TaskIndex,
-		EnumOfDataTrained:  big.NewInt(1),
+		ReferenceTaskIndex:        newTaskCreatedLog.TaskIndex,
+		EncryptedWeightsAndBiases: encryptedWeightsAndBiases,
 	}
 	return taskResponse
 }
