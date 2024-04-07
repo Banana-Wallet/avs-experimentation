@@ -84,13 +84,13 @@ contract IncredibleSquaringTaskManager is
     // Need to update here which model needs to be trained on which data sets
     // currently we have only binary classifier model and bank dataset, We will denote the bank dataset by enum -> 1 for simplicity
     function createNewTask(
-        uint256 enumOfDataToBeTrained,
+        uint256 computeRequestClientId,
         uint32 quorumThresholdPercentage,
         bytes calldata quorumNumbers
-    ) external onlyTaskGenerator {
+    ) external { // removed onlyTaskGenerater check so that anyone can call createNewTask
         // create a new task struct
         Task memory newTask;
-        newTask.enumOfDataToBeTrained = enumOfDataToBeTrained;
+        newTask.computeRequestClientId = computeRequestClientId;
         newTask.taskCreatedBlock = uint32(block.number);
         newTask.quorumThresholdPercentage = quorumThresholdPercentage;
         newTask.quorumNumbers = quorumNumbers;

@@ -62,8 +62,8 @@ func TestProcessSignedTaskResponse(t *testing.T) {
 // mocks an operator signing on a task response
 func createMockSignedTaskResponse(mockTask MockTask, keypair bls.KeyPair) (*SignedTaskResponse, error) {
 	taskResponse := &cstaskmanager.IIncredibleSquaringTaskManagerTaskResponse{
-		ReferenceTaskIndex:        mockTask.TaskNum,
-		EncryptedWeightsAndBiases: []byte{},
+		ReferenceTaskIndex:                mockTask.TaskNum,
+		encryptedLoanApplicationInference: []byte{},
 	}
 	taskResponseHash, err := core.GetTaskResponseDigest(taskResponse)
 	if err != nil {

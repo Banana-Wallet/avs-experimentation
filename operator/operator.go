@@ -308,7 +308,7 @@ func (o *Operator) Start(ctx context.Context) error {
 func (o *Operator) ProcessNewTaskCreatedLog(newTaskCreatedLog *cstaskmanager.ContractIncredibleSquaringTaskManagerNewTaskCreated) *cstaskmanager.IIncredibleSquaringTaskManagerTaskResponse {
 	o.logger.Debug("Received new task", "task", newTaskCreatedLog)
 	o.logger.Info("Received new task",
-		"enumOfDataToBeTrained", newTaskCreatedLog.Task.EnumOfDataToBeTrained,
+		"Request clientId", newTaskCreatedLog.Task.ComputeRequestClientId,
 		"taskIndex", newTaskCreatedLog.TaskIndex,
 		"taskCreatedBlock", newTaskCreatedLog.Task.TaskCreatedBlock,
 		"quorumNumbers", newTaskCreatedLog.Task.QuorumNumbers,
@@ -317,24 +317,26 @@ func (o *Operator) ProcessNewTaskCreatedLog(newTaskCreatedLog *cstaskmanager.Con
 
 	// make a request here to the client to train the data and get the result
 
-	webapiUrl := "http://localhost:8000/train_server"
+	webapiUrl := "http://localhost:8000/run_fhe"
 	// val := big.NewInt(1)
 
-	jsonData := []byte(`{}`)
-	var encryptedWeightsAndBiases string
+	// jsonData := []byte(`{}`)
+	// send client id in json data
+	jsonData := []byte(`{"client_id": ` + newTaskCreatedLog.Task.ComputeRequestClientId.String() + `}`)
+	var encryptedLoanApplicationInference string
 	response, err := http.Post(webapiUrl, "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		fmt.Printf("The HTTP request failed with error %s\n", err)
 	} else {
-		encryptedWeightsAndBiasesFetched, _ := ioutil.ReadAll(response.Body)
-		encryptedWeightsAndBiases = string(encryptedWeightsAndBiasesFetched)
+		encryptedLoanApplicationInferenceFetch, _ := ioutil.ReadAll(response.Body)
+		encryptedLoanApplicationInference = string(encryptedLoanApplicationInferenceFetch)
 	}
 
-	fmt.Println(encryptedWeightsAndBiases)
+	fmt.Println(encryptedLoanApplicationInference)
 
 	taskResponse := &cstaskmanager.IIncredibleSquaringTaskManagerTaskResponse{
-		ReferenceTaskIndex:        newTaskCreatedLog.TaskIndex,
-		EncryptedWeightsAndBiases: encryptedWeightsAndBiases,
+		ReferenceTaskIndex:                newTaskCreatedLog.TaskIndex,
+		EncryptedLoanApplicationInference: encryptedLoanApplicationInference,
 	}
 	fmt.Println("Returned the response")
 	return taskResponse

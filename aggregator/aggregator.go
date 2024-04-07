@@ -196,10 +196,10 @@ func (agg *Aggregator) sendAggregatedResponseToContract(blsAggServiceResp blsagg
 
 // sendNewTask sends a new task to the task manager contract, and updates the Task dict struct
 // with the information of operators opted into quorum 0 at the block of task creation.
-func (agg *Aggregator) sendNewTask(enumOfDataToBeTrained *big.Int) error {
-	agg.logger.Info("Aggregator sending new task", "EnumOfDataToBeTrained", enumOfDataToBeTrained)
+func (agg *Aggregator) sendNewTask(computeRequestClientId *big.Int) error {
+	agg.logger.Info("Aggregator sending new task", "Request Client id", computeRequestClientId)
 	// Send number to square to the task manager contract
-	newTask, taskIndex, err := agg.avsWriter.SendNewTaskNumberToSquare(context.Background(), enumOfDataToBeTrained, types.QUORUM_THRESHOLD_NUMERATOR, types.QUORUM_NUMBERS)
+	newTask, taskIndex, err := agg.avsWriter.SendNewTaskNumberToSquare(context.Background(), computeRequestClientId, types.QUORUM_THRESHOLD_NUMERATOR, types.QUORUM_NUMBERS)
 	if err != nil {
 		agg.logger.Error("Aggregator failed to send number to square", "err", err)
 		return err
