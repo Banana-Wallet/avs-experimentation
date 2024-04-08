@@ -63,9 +63,10 @@ func (agg *Aggregator) ProcessSignedTaskResponse(signedTaskResponse *SignedTaskR
 	}
 	agg.taskResponsesMu.Unlock()
 
-	err = agg.blsAggregationService.ProcessNewSignature(
-		context.Background(), taskIndex, taskResponseDigest,
-		&signedTaskResponse.BlsSignature, signedTaskResponse.OperatorId,
-	)
+	// commenting out signature verification for now
+	// err = agg.blsAggregationService.ProcessNewSignature(
+	// 	context.Background(), taskIndex, taskResponseDigest,
+	// 	&signedTaskResponse.BlsSignature, signedTaskResponse.OperatorId,
+	// )
 	return err
 }

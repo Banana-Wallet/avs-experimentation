@@ -8,8 +8,8 @@ interface IIncredibleSquaringTaskManager {
     event NewTaskCreated(uint32 indexed taskIndex, Task task);
 
     event TaskResponded(
-        TaskResponse taskResponse,
-        TaskResponseMetadata taskResponseMetadata
+        TaskResponse taskResponse
+        // TaskResponseMetadata taskResponseMetadata
     );
 
     event TaskCompleted(uint32 indexed taskIndex);

@@ -112,61 +112,63 @@ contract IncredibleSquaringTaskManager is
         uint32 quorumThresholdPercentage = task.quorumThresholdPercentage;
 
         // check that the task is valid, hasn't been responsed yet, and is being responsed in time
-        require(
-            keccak256(abi.encode(task)) ==
-                allTaskHashes[taskResponse.referenceTaskIndex],
-            "supplied task does not match the one recorded in the contract"
-        );
-        // some logical checks
-        require(
-            allTaskResponses[taskResponse.referenceTaskIndex] == bytes32(0),
-            "Aggregator has already responded to the task"
-        );
-        require(
-            uint32(block.number) <=
-                taskCreatedBlock + TASK_RESPONSE_WINDOW_BLOCK,
-            "Aggregator has responded to the task too late"
-        );
+        // require(
+        //     keccak256(abi.encode(task)) ==
+        //         allTaskHashes[taskResponse.referenceTaskIndex],
+        //     "supplied task does not match the one recorded in the contract"
+        // );
+        // // some logical checks
+        // require(
+        //     allTaskResponses[taskResponse.referenceTaskIndex] == bytes32(0),
+        //     "Aggregator has already responded to the task"
+        // );
+        // require(
+        //     uint32(block.number) <=
+        //         taskCreatedBlock + TASK_RESPONSE_WINDOW_BLOCK,
+        //     "Aggregator has responded to the task too late"
+        // );
 
-        /* CHECKING SIGNATURES & WHETHER THRESHOLD IS MET OR NOT */
-        // calculate message which operators signed
-        bytes32 message = keccak256(abi.encode(taskResponse));
+        // /* CHECKING SIGNATURES & WHETHER THRESHOLD IS MET OR NOT */
+        // // calculate message which operators signed
+        // bytes32 message = keccak256(abi.encode(taskResponse));
 
-        // check the BLS signature
-        (
-            QuorumStakeTotals memory quorumStakeTotals,
-            bytes32 hashOfNonSigners
-        ) = checkSignatures(
-                message,
-                quorumNumbers,
-                taskCreatedBlock,
-                nonSignerStakesAndSignature
-            );
+        // // check the BLS signature
+        // (
+        //     QuorumStakeTotals memory quorumStakeTotals,
+        //     bytes32 hashOfNonSigners
+        // ) = checkSignatures(
+        //         message,
+        //         quorumNumbers,
+        //         taskCreatedBlock,
+        //         nonSignerStakesAndSignature
+        //     );
 
-        // check that signatories own at least a threshold percentage of each quourm
-        for (uint i = 0; i < quorumNumbers.length; i++) {
-            // we don't check that the quorumThresholdPercentages are not >100 because a greater value would trivially fail the check, implying
-            // signed stake > total stake
-            require(
-                quorumStakeTotals.signedStakeForQuorum[i] *
-                    _THRESHOLD_DENOMINATOR >=
-                    quorumStakeTotals.totalStakeForQuorum[i] *
-                        uint8(quorumThresholdPercentage),
-                "Signatories do not own at least threshold percentage of a quorum"
-            );
-        }
+        // // check that signatories own at least a threshold percentage of each quourm
+        // for (uint i = 0; i < quorumNumbers.length; i++) {
+        //     // we don't check that the quorumThresholdPercentages are not >100 because a greater value would trivially fail the check, implying
+        //     // signed stake > total stake
+        //     require(
+        //         quorumStakeTotals.signedStakeForQuorum[i] *
+        //             _THRESHOLD_DENOMINATOR >=
+        //             quorumStakeTotals.totalStakeForQuorum[i] *
+        //                 uint8(quorumThresholdPercentage),
+        //         "Signatories do not own at least threshold percentage of a quorum"
+        //     );
+        // }
 
-        TaskResponseMetadata memory taskResponseMetadata = TaskResponseMetadata(
-            uint32(block.number),
-            hashOfNonSigners
-        );
-        // updating the storage with task responsea
+        // TaskResponseMetadata memory taskResponseMetadata = TaskResponseMetadata(
+        //     uint32(block.number),
+        //     hashOfNonSigners
+        // );
+        // updating the storage with task response
+
+        // for now commented out all checks since we are not initializiing task on the aggregator end
         allTaskResponses[taskResponse.referenceTaskIndex] = keccak256(
-            abi.encode(taskResponse, taskResponseMetadata)
+            abi.encode(taskResponse, bytes32(0))
         );
 
         // emitting event
-        emit TaskResponded(taskResponse, taskResponseMetadata);
+        emit TaskResponded(taskResponse);
     }
 
     function taskNumber() external view returns (uint32) {

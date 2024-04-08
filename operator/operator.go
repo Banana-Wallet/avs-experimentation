@@ -386,8 +386,6 @@ func (o *Operator) ProcessNewTaskCreatedLog(newTaskCreatedLog *cstaskmanager.Con
 
 	fmt.Println(encryptedLoanApplicationInference)
 
-	// Process the response...
-	// Assuming you're setting the response into a struct for further use
 	taskResponse := &cstaskmanager.IIncredibleSquaringTaskManagerTaskResponse{
 		ReferenceTaskIndex:                newTaskCreatedLog.TaskIndex,
 		EncryptedLoanApplicationInference: encryptedLoanApplicationInference,
