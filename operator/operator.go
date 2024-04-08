@@ -275,6 +275,9 @@ func (o *Operator) Start(ctx context.Context) error {
 		metricsErrChan = make(chan error, 1)
 	}
 
+	fmt.Println("Subscribing to new tasks")
+	fmt.Println(o.credibleSquaringServiceManagerAddr)
+
 	// TODO(samlaf): wrap this call with increase in avs-node-spec metric
 	sub := o.avsSubscriber.SubscribeToNewTasks(o.newTaskCreatedChan)
 	for {

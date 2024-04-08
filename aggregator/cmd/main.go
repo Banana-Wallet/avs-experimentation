@@ -48,7 +48,6 @@ func aggregatorMain(ctx *cli.Context) error {
 		config.Logger.Fatalf(err.Error())
 	}
 	fmt.Println("Config:", string(configJson))
-
 	agg, err := aggregator.NewAggregator(config)
 	if err != nil {
 		return err
