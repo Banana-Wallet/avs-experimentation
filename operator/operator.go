@@ -4,7 +4,8 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
+	"mime/multipart"
 	"net/http"
 	"os"
 
@@ -320,27 +321,78 @@ func (o *Operator) ProcessNewTaskCreatedLog(newTaskCreatedLog *cstaskmanager.Con
 
 	// make a request here to the client to train the data and get the result
 
-	webapiUrl := "http://localhost:8000/run_fhe"
-	// val := big.NewInt(1)
+	// webapiUrl := "http://localhost:8000/run_fhe"
+	// // val := big.NewInt(1)
 
-	// jsonData := []byte(`{}`)
-	// send client id in json data
-	jsonData := []byte(`{"client_id": ` + newTaskCreatedLog.Task.ComputeRequestClientId.String() + `}`)
+	// // jsonData := []byte(`{}`)
+	// // send client id in json data
+	// jsonData := []byte(`{"client_id": ` + newTaskCreatedLog.Task.ComputeRequestClientId.String() + `}`)
+	// var encryptedLoanApplicationInference string
+	// response, err := http.Post(webapiUrl, "application/json", bytes.NewBuffer(jsonData))
+	// if err != nil {
+	// 	fmt.Printf("The HTTP request failed with error %s\n", err)
+	// } else {
+	// 	encryptedLoanApplicationInferenceFetch, _ := ioutil.ReadAll(response.Body)
+	// 	encryptedLoanApplicationInference = string(encryptedLoanApplicationInferenceFetch)
+	// }
+
+	// fmt.Println(encryptedLoanApplicationInference)
+
+	// taskResponse := &cstaskmanager.IIncredibleSquaringTaskManagerTaskResponse{
+	// 	ReferenceTaskIndex:                newTaskCreatedLog.TaskIndex,
+	// 	EncryptedLoanApplicationInference: encryptedLoanApplicationInference,
+	// }
+
+	webapiUrl := "http://localhost:8000/run_fhe"
 	var encryptedLoanApplicationInference string
-	response, err := http.Post(webapiUrl, "application/json", bytes.NewBuffer(jsonData))
+
+	var requestBody bytes.Buffer
+	multipartWriter := multipart.NewWriter(&requestBody)
+
+	// Add the client_id form field from ComputeRequestClientId
+	clientID := newTaskCreatedLog.Task.ComputeRequestClientId.String() // Assuming this gets the client ID as string
+	if err := multipartWriter.WriteField("client_id", clientID); err != nil {
+		fmt.Printf("Error writing to multipart writer: %v", err)
+	}
+
+	// Close the multipart writer to finalize the body
+	if err := multipartWriter.Close(); err != nil {
+		fmt.Printf("Error closing multipart writer: %v", err)
+	}
+
+	// Create a new HTTP request with the form data
+	req, err := http.NewRequest("POST", webapiUrl, &requestBody)
+	if err != nil {
+		fmt.Printf("Error creating request: %v", err)
+	}
+
+	// Set the Content-Type header to the correct value including the boundary
+	req.Header.Set("Content-Type", multipartWriter.FormDataContentType())
+
+	// Send the request
+	client := &http.Client{}
+	response, err := client.Do(req)
 	if err != nil {
 		fmt.Printf("The HTTP request failed with error %s\n", err)
-	} else {
-		encryptedLoanApplicationInferenceFetch, _ := ioutil.ReadAll(response.Body)
-		encryptedLoanApplicationInference = string(encryptedLoanApplicationInferenceFetch)
 	}
+	defer response.Body.Close()
+
+	// Read the response body
+	encryptedLoanApplicationInferenceFetch, err := io.ReadAll(response.Body)
+	if err != nil {
+		fmt.Printf("Error reading response body: %v", err)
+	}
+	encryptedLoanApplicationInference = string(encryptedLoanApplicationInferenceFetch)
 
 	fmt.Println(encryptedLoanApplicationInference)
 
+	// Process the response...
+	// Assuming you're setting the response into a struct for further use
 	taskResponse := &cstaskmanager.IIncredibleSquaringTaskManagerTaskResponse{
 		ReferenceTaskIndex:                newTaskCreatedLog.TaskIndex,
 		EncryptedLoanApplicationInference: encryptedLoanApplicationInference,
 	}
+
 	fmt.Println("Returned the response")
 	return taskResponse
 }
